@@ -1,0 +1,5 @@
+{
+  "name": "Helios VentiPro KWL Expert",
+  "description": "A high-precision ventilation design tool for Helios KWL systems, compliant with French DTU 68.3 regulations, featuring multi-level planning, automatic dimensioning, and detailed technical reporting.",
+  "requestFramePermissions": []
+}
