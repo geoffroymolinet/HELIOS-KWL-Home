@@ -833,35 +833,54 @@ const Report: React.FC<ReportProps> = ({ project, onBack }) => {
 
           // Calculate auto-fit bounding box to ensure 100% of elements & plan are perfectly centered and visible
           const bounds = getLevelPlanBounds(project, level.id);
-          const targetBoxWidth = 680;
-          const effectiveZoom = Math.min(1.2, Math.max(0.25, targetBoxWidth / bounds.width));
+          const targetBoxWidth = 720;
+          const effectiveZoom = Math.min(1.3, Math.max(0.35, targetBoxWidth / bounds.width));
 
           return (
-            <div key={level.id} className="relative w-[210mm] min-h-[297mm] bg-white mx-auto shadow-2xl mb-12 print:mb-0 print:shadow-none flex flex-col p-[20mm] page-break">
+            <div 
+              key={level.id} 
+              className="relative w-[210mm] h-[297mm] max-h-[297mm] bg-white mx-auto shadow-2xl mb-12 print:mb-0 print:shadow-none flex flex-col justify-between p-[14mm] page-break box-border overflow-hidden"
+            >
               {/* Page Header */}
-              <div className="flex items-center justify-between mb-4 border-b pb-3">
+              <div className="flex items-center justify-between mb-2 border-b pb-2">
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 italic uppercase tracking-tighter">
+                  <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tighter">
                     Plan d'Implantation Technique : {level.name}
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                     Réseau aéraulique FlexPipe 75 semi-rigide & Conduits Isopipe
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] font-black uppercase text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-200">
+                  <span className="text-[9px] font-black uppercase text-red-600 bg-red-50 px-3 py-1 rounded-lg border border-red-200">
                     {level.name}
                   </span>
-                  <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Projet : {project.name}</p>
+                  <p className="text-[8px] font-bold text-slate-400 mt-0.5 uppercase">Projet : {project.name}</p>
                 </div>
               </div>
 
-              {/* SVG Canvas Render with Auto-Fit ViewBox & Blueprint Background */}
-              <div className="flex-1 bg-slate-50 rounded-[2rem] border-2 border-slate-200 overflow-hidden relative min-h-[540px] flex items-center justify-center p-3 shadow-inner">
+              {/* Technical Drawing Canvas Frame - Fixed Height Locked for A4 & html2canvas */}
+              <div 
+                className="w-full h-[180mm] min-h-[180mm] max-h-[180mm] rounded-2xl border-2 border-slate-300 relative overflow-hidden flex items-center justify-center my-1 shadow-sm"
+                style={{ 
+                  height: '670px', 
+                  minHeight: '670px', 
+                  maxHeight: '670px', 
+                  width: '100%', 
+                  position: 'relative',
+                  backgroundColor: '#f8fafc',
+                  backgroundImage: !level.backgroundImage 
+                    ? 'radial-gradient(#94a3b8 1.2px, transparent 1.2px)' 
+                    : undefined,
+                  backgroundSize: '24px 24px'
+                }}
+              >
                 <svg 
                   viewBox={`${bounds.minX} ${bounds.minY} ${bounds.width} ${bounds.height}`}
                   preserveAspectRatio="xMidYMid meet"
-                  className="w-full h-full max-h-[540px] block"
+                  width="100%"
+                  height="100%"
+                  style={{ width: '100%', height: '100%', display: 'block' }}
                   xmlns="http://www.w3.org/2000/svg"
                   xmlnsXlink="http://www.w3.org/1999/xlink"
                 >
@@ -871,91 +890,65 @@ const Report: React.FC<ReportProps> = ({ project, onBack }) => {
                     y={bounds.minY} 
                     width={bounds.width} 
                     height={bounds.height} 
-                    fill="#f8fafc" 
+                    fill={level.backgroundImage ? "transparent" : "#f8fafc"} 
                   />
-
-                  {/* High precision CAD blueprint dot grid if no architectural background image is loaded */}
-                  {!level.backgroundImage && (
-                    <g opacity="0.4">
-                      <defs>
-                        <pattern 
-                          id={`cad-grid-${level.id}`} 
-                          width={project.pixelsPerMeter || 60} 
-                          height={project.pixelsPerMeter || 60} 
-                          patternUnits="userSpaceOnUse"
-                        >
-                          <circle cx="0" cy="0" r="1.5" fill="#94a3b8" />
-                          <circle cx={project.pixelsPerMeter || 60} cy="0" r="1.5" fill="#94a3b8" />
-                          <circle cx="0" cy={project.pixelsPerMeter || 60} r="1.5" fill="#94a3b8" />
-                          <circle cx={project.pixelsPerMeter || 60} cy={project.pixelsPerMeter || 60} r="1.5" fill="#94a3b8" />
-                        </pattern>
-                      </defs>
-                      <rect 
-                        x={bounds.minX} 
-                        y={bounds.minY} 
-                        width={bounds.width} 
-                        height={bounds.height} 
-                        fill={`url(#cad-grid-${level.id})`} 
-                      />
-                    </g>
-                  )}
 
                   {/* Render all MEP conduits, vents, plenums, hoods, and background image */}
                   {renderPlanSVG(project, level.id, effectiveZoom, { x: 0, y: 0 }, true)}
                 </svg>
                 
                 {/* Technical Cartouche Overlay */}
-                <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md border border-slate-200 px-3.5 py-2.5 rounded-2xl shadow-lg text-[8.5px] font-bold space-y-1 pointer-events-none z-20">
-                  <div className="font-black text-slate-900 uppercase">Cartouche Technique Helios</div>
+                <div className="absolute bottom-2.5 right-2.5 bg-white/95 backdrop-blur-md border border-slate-300 px-3 py-2 rounded-xl shadow-md text-[8px] font-bold space-y-0.5 pointer-events-none z-20">
+                  <div className="font-black text-slate-900 uppercase text-[7.5px]">Cartouche Helios</div>
                   <div className="text-slate-500">Échelle : 1m = {Math.round(project.pixelsPerMeter)} px</div>
-                  <div className="text-slate-500">Niveau : {level.name} ({level.id === 0 ? 'Rez-de-chaussée' : 'Étage supérieur'})</div>
-                  <div className="text-slate-400 text-[7.5px]">Client : {clientData.clientName}</div>
+                  <div className="text-slate-500">Niveau : {level.name}</div>
+                  <div className="text-slate-400 text-[7px]">Client : {clientData.clientName || 'Propriétaire'}</div>
                 </div>
 
                 {/* Legend Overlay */}
-                <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md border border-slate-200 px-3.5 py-2.5 rounded-2xl shadow-lg text-[8.5px] font-bold space-y-1 pointer-events-none z-20">
-                  <div className="font-black text-slate-900 uppercase mb-0.5">Légende Réseau</div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-1.5 rounded-full bg-blue-600" />
+                <div className="absolute bottom-2.5 left-2.5 bg-white/95 backdrop-blur-md border border-slate-300 px-3 py-2 rounded-xl shadow-md text-[8px] font-bold space-y-1 pointer-events-none z-20">
+                  <div className="font-black text-slate-900 uppercase text-[7.5px] mb-0.5">Légende Réseau</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-1.5 rounded-full bg-blue-600" />
                     <span className="text-slate-700">Soufflage Air Neuf (FRS 75)</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-1.5 rounded-full bg-red-600" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-1.5 rounded-full bg-red-600" />
                     <span className="text-slate-700">Reprise Air Vicié (FRS 75)</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded bg-amber-500" />
-                    <span className="text-slate-700">Trémie Technique Inter-Étages</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded bg-amber-500" />
+                    <span className="text-slate-700">Trémie Inter-Étages</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded bg-slate-800" />
-                    <span className="text-slate-700">Plénum de Répartition FRS-VK</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded bg-slate-800" />
+                    <span className="text-slate-700">Plénum FRS-VK</span>
                   </div>
                 </div>
               </div>
 
               {/* Level Summary Metrics */}
-              <div className="mt-4 grid grid-cols-4 gap-4">
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Bouches Soufflage</p>
-                  <p className="text-lg font-black text-blue-600">{levelSupply.length} <span className="text-xs text-slate-400">({levelSupply.reduce((a, v) => a + v.flowRate, 0)} m³/h)</span></p>
+              <div className="mt-2 grid grid-cols-4 gap-3">
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                  <p className="text-[7.5px] font-black text-slate-400 uppercase mb-0.5">Bouches Soufflage</p>
+                  <p className="text-base font-black text-blue-600">{levelSupply.length} <span className="text-[10px] text-slate-400 font-bold">({levelSupply.reduce((a, v) => a + v.flowRate, 0)} m³/h)</span></p>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Bouches Extraction</p>
-                  <p className="text-lg font-black text-red-600">{levelExtract.length} <span className="text-xs text-slate-400">({levelExtract.reduce((a, v) => a + v.flowRate, 0)} m³/h)</span></p>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                  <p className="text-[7.5px] font-black text-slate-400 uppercase mb-0.5">Bouches Extraction</p>
+                  <p className="text-base font-black text-red-600">{levelExtract.length} <span className="text-[10px] text-slate-400 font-bold">({levelExtract.reduce((a, v) => a + v.flowRate, 0)} m³/h)</span></p>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Plénums sur Niveau</p>
-                  <p className="text-lg font-black text-slate-900">{levelPlenums.length}</p>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                  <p className="text-[7.5px] font-black text-slate-400 uppercase mb-0.5">Plénums sur Niveau</p>
+                  <p className="text-base font-black text-slate-900">{levelPlenums.length}</p>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Débit Cumulé Niveau</p>
-                  <p className="text-lg font-black text-slate-900">{levelVents.reduce((a, v) => a + v.flowRate, 0)} <span className="text-xs text-slate-400">m³/h</span></p>
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                  <p className="text-[7.5px] font-black text-slate-400 uppercase mb-0.5">Débit Cumulé Niveau</p>
+                  <p className="text-base font-black text-slate-900">{levelVents.reduce((a, v) => a + v.flowRate, 0)} <span className="text-[10px] text-slate-400 font-bold">m³/h</span></p>
                 </div>
               </div>
 
               {/* Page Footer */}
-              <div className="border-t border-slate-200 pt-4 mt-4 flex items-center justify-between text-xs font-bold text-slate-400">
+              <div className="border-t border-slate-200 pt-2 mt-2 flex items-center justify-between text-xs font-bold text-slate-400">
                 <span>Helios KWL Habitat • Plan d'implantation {level.name}</span>
                 <span>Page {3 + levelIdx} / 8</span>
               </div>

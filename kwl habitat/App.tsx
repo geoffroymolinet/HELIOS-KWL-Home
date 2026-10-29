@@ -11,10 +11,9 @@ import { calculateAerodynamics } from './utils/aerodynamics';
 import { autoRouteVents } from './utils/autoRouting';
 import { 
   Wind, X as CloseIcon, Undo2, Redo2, Save, FolderOpen, 
-  DollarSign, Scissors, Github, Check, CheckCircle2, Sliders, Sparkles 
+  DollarSign, Scissors, Check, CheckCircle2, Sliders, Sparkles 
 } from 'lucide-react';
 import { QuoteHubSpotModal } from './components/QuoteHubSpotModal';
-import { GitHubHelpModal } from './components/GitHubHelpModal';
 import { CoilCuttingView } from './components/CoilCuttingView';
 
 const INITIAL_PROJECT: Project = {
@@ -55,7 +54,6 @@ const App: React.FC = () => {
   
   // New Modals and Feedback Toast
   const [showQuoteHubSpot, setShowQuoteHubSpot] = useState(false);
-  const [showGitHubHelp, setShowGitHubHelp] = useState(false);
   const [showCoilCuttingModal, setShowCoilCuttingModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const fileImportRef = useRef<HTMLInputElement>(null);
@@ -446,7 +444,6 @@ const App: React.FC = () => {
             onAutoRoute={() => handleAutoRoute()}
             onOpenQuoteHubSpot={() => setShowQuoteHubSpot(true)}
             onOpenCutting={() => setShowCoilCuttingModal(true)}
-            onOpenGitHub={() => setShowGitHubHelp(true)}
             onExportProjectFile={handleExportProjectFile}
           />
           <div className="flex-1 flex flex-col relative overflow-hidden">
@@ -518,7 +515,7 @@ const App: React.FC = () => {
                 />
               </div>
 
-              {/* Right: Devis & HubSpot CRM + Calpinage + GitHub + Dossier */}
+              {/* Right: Devis & HubSpot CRM + Calpinage + Dossier */}
               <div className="flex items-center gap-2.5">
                 {/* Devis & HubSpot */}
                 <button
@@ -538,16 +535,6 @@ const App: React.FC = () => {
                 >
                   <Scissors size={14} className="text-amber-400" />
                   <span>Calpinage (50m)</span>
-                </button>
-
-                {/* GitHub Guide Modal */}
-                <button
-                  onClick={() => setShowGitHubHelp(true)}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-[10px] font-black uppercase shadow-sm active:scale-95 transition-all"
-                  title="Guide d'exportation vers votre compte GitHub et sauvegarde"
-                >
-                  <Github size={14} />
-                  <span>GitHub</span>
                 </button>
 
                 {/* Switch to Report View */}
@@ -738,15 +725,6 @@ const App: React.FC = () => {
         <QuoteHubSpotModal 
           project={project} 
           onClose={() => setShowQuoteHubSpot(false)} 
-        />
-      )}
-
-      {/* GitHub Help & Export Modal */}
-      {showGitHubHelp && (
-        <GitHubHelpModal 
-          project={project} 
-          onClose={() => setShowGitHubHelp(false)} 
-          onExportLocalProject={handleExportProjectFile} 
         />
       )}
 

@@ -3,7 +3,7 @@ import { Project } from '../types';
 import { 
   Wind, Box, FileText, Target, Settings2, Zap, ArrowUpRight, Grid, HomeIcon, 
   MousePointer2, Ruler, Trash2, Layers, Home, CornerDownRight, Sliders, Activity, 
-  Sparkles, DollarSign, Scissors, Github, Save
+  Sparkles, DollarSign, Scissors, Save
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -17,7 +17,6 @@ interface SidebarProps {
   onAutoRoute?: () => void;
   onOpenQuoteHubSpot?: () => void;
   onOpenCutting?: () => void;
-  onOpenGitHub?: () => void;
   onExportProjectFile?: () => void;
 }
 
@@ -31,7 +30,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   onAutoRoute,
   onOpenQuoteHubSpot,
   onOpenCutting,
-  onOpenGitHub,
   onExportProjectFile
 }) => {
   const ActionButton = ({ id, icon, label, active, color = "default", shortcut }: any) => {

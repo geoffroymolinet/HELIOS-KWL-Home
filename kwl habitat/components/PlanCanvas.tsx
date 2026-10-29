@@ -163,17 +163,16 @@ export const getLevelPlanBounds = (project: Project, levelId: number): PlanBound
   }
 
   // Padding
-  const rawW = Math.max(maxX - minX, 300);
-  const rawH = Math.max(maxY - minY, 200);
-  const padX = Math.max(rawW * 0.05, 35);
-  const padYTop = Math.max(rawH * 0.05, 35);
-  const padYBottom = Math.max(rawH * 0.12, 65);
+  const rawW = Math.max(maxX - minX, 400);
+  const rawH = Math.max(maxY - minY, 280);
+  const padX = Math.max(rawW * 0.05, 30);
+  const padY = Math.max(rawH * 0.05, 30);
 
   return {
     minX: Math.round(minX - padX),
-    minY: Math.round(minY - padYTop),
+    minY: Math.round(minY - padY),
     width: Math.round(rawW + 2 * padX),
-    height: Math.round(rawH + padYTop + padYBottom)
+    height: Math.round(rawH + 2 * padY)
   };
 };
 
@@ -190,23 +189,25 @@ export const renderPlanSVG = (
   const level = project.levels.find(l => l.id === levelId);
   if (!level) return null;
 
-  const imageWidth = level.planWidth || 2000;
-  const imageHeight = level.planHeight || 1500;
+  const imageWidth = level.planWidth || 1600;
+  const imageHeight = level.planHeight || 1200;
 
   return (
     <g transform={isPrinting ? (offset.x !== 0 || offset.y !== 0 ? `translate(${offset.x}, ${offset.y})` : undefined) : `translate(${offset.x}, ${offset.y}) scale(${zoom})`}>
       <defs>
-        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
-          <feOffset dx="1" dy="1" result="offsetblur" />
-          <feComponentTransfer>
-            <feFuncA type="linear" slope="0.3" />
-          </feComponentTransfer>
-          <feMerge>
-            <feMergeNode />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        {!isPrinting && (
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+            <feOffset dx="1" dy="1" result="offsetblur" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.3" />
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        )}
       </defs>
       {level.backgroundImage && (
         <image 
@@ -217,6 +218,7 @@ export const renderPlanSVG = (
           width={imageWidth} 
           height={imageHeight} 
           opacity={isPrinting ? 1 : 0.6}
+          preserveAspectRatio="none"
         />
       )}
       
@@ -634,7 +636,7 @@ export const renderPlanSVG = (
               fill="white" 
               stroke={color} 
               strokeWidth={isSelected ? 4 / zoom : 2.5 / zoom} 
-              filter="url(#shadow)" 
+              filter={isPrinting ? undefined : "url(#shadow)"} 
             />
             
             {/* Vent Inner Aeration Ring */}
